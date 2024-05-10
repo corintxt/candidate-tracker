@@ -31,6 +31,19 @@ h1 {
   border-radius: 4px;
 }
 
+.date-range-slider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-range-slider input[type="date"] {
+  padding: 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 .button-container {
   display: flex;
   gap: 10px;

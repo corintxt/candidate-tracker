@@ -3,6 +3,9 @@
 // URL of the CSV file
 const csvUrl = 'https://raw.githubusercontent.com/corintxt/papiris/main/testout.csv';
 
+// Declare a variable globally
+let csvData;
+
 // Function to fetch and parse the CSV data
 function fetchCsvData(url, callback) {
   Papa.parse(url, {
@@ -83,37 +86,72 @@ function generateCandidateFilter(data) {
   });
 }
 
-/// CALCULATE TOP STATES
-let csvData;
-
-// Function to calculate the top states visited by each candidate
-function calculateTopStates(data) {
-const candidateStates = {};
-
-for (let row of data) {
-    const candidate = row.candidate;
-    const state = row.state;
-
-    if (!candidateStates[candidate]) {
-    candidateStates[candidate] = {};
-    }
-
-    if (!candidateStates[candidate][state]) {
-    candidateStates[candidate][state] = 0;
-    }
-
-    candidateStates[candidate][state]++;
+// FILTER BY DATE
+// Function to filter the table based on the selected date range
+function filterTableByDateRange(startDate, endDate) {
+  if (csvData) {
+    const filteredData = csvData.filter(row => {
+      const rowDate = new Date(row.date);
+      return rowDate >= startDate && rowDate <= endDate;
+    });
+    generateTable(filteredData);
+  }
 }
 
-const topStates = {};
 
-for (let candidate in candidateStates) {
+// Event listeners for the date range inputs
+const dateRangeStart = document.getElementById('dateRangeStart');
+const dateRangeEnd = document.getElementById('dateRangeEnd');
+
+dateRangeStart.addEventListener('change', applyDateFilter);
+dateRangeEnd.addEventListener('change', applyDateFilter);
+
+function applyDateFilter() {
+  const startDate = new Date(dateRangeStart.value);
+  const endDate = new Date(dateRangeEnd.value);
+  filterTableByDateRange(startDate, endDate);
+}
+
+// Set initial values for the date range inputs
+const initialStartDate = new Date('2024-01-01');
+const initialEndDate = new Date('2024-11-05');
+dateRangeStart.value = initialStartDate.toISOString().split('T')[0];
+dateRangeEnd.value = initialEndDate.toISOString().split('T')[0];
+filterTableByDateRange(initialStartDate, initialEndDate);
+
+
+/// CALCULATE TOP STATES
+// Function to calculate the top states visited by each candidate within the selected date range
+function calculateTopStates(data, startDate, endDate) {
+  const candidateStates = {};
+
+  for (let row of data) {
+    const rowDate = new Date(row.date);
+    if (rowDate >= startDate && rowDate <= endDate) {
+      const candidate = row.candidate;
+      const state = row.state;
+
+      if (!candidateStates[candidate]) {
+        candidateStates[candidate] = {};
+      }
+
+      if (!candidateStates[candidate][state]) {
+        candidateStates[candidate][state] = 0;
+      }
+
+      candidateStates[candidate][state]++;
+    }
+  }
+
+  const topStates = {};
+
+  for (let candidate in candidateStates) {
     const stateVisits = candidateStates[candidate];
     const sortedStates = Object.entries(stateVisits).sort((a, b) => b[1] - a[1]);
-    topStates[candidate] = sortedStates.slice(0, 10);
-}
+    topStates[candidate] = sortedStates.slice(0, 5);
+  }
 
-return topStates;
+  return topStates;
 }
 
 /// DISPLAY FUNCTIONS
@@ -150,52 +188,56 @@ function displayTopStates(topStates) {
   
     document.getElementById('table-container').innerHTML = html;
   
-    // Event listeners for the "full list" buttons
-    const fullListButtons = document.getElementsByClassName('full-list-btn');
-    console.log('Full List Buttons:', fullListButtons);
-  
-    for (let button of fullListButtons) {
-      button.addEventListener('click', function() {
-        const candidateBox = this.closest('.candidate-box');
-        const candidate = candidateBox.getAttribute('data-candidate');
-        console.log('Clicked Candidate:', candidate);
-        displayFullStatesList(candidateBox, topStates[candidate]);
-      });
-    }
+// Event listeners for the "full list" buttons
+const fullListButtons = document.getElementsByClassName('full-list-btn');
+console.log('Full List Buttons:', fullListButtons);
+
+for (let button of fullListButtons) {
+  button.addEventListener('click', function() {
+    const candidateBox = this.closest('.candidate-box');
+    const candidate = candidateBox.getAttribute('data-candidate');
+    console.log('Clicked Candidate:', candidate);
+    const startDate = new Date(dateRangeStart.value);
+    const endDate = new Date(dateRangeEnd.value);
+    const stateVisits = calculateTopStates(csvData, startDate, endDate)[candidate];
+    displayFullStatesList(candidateBox, stateVisits, startDate, endDate);
+  });
+}
   }
   
-  // Function to display the full list of states for a candidate
-  function displayFullStatesList(candidateBox, stateVisits) {
-    console.log('Displaying Full States List for:', candidateBox);
-    const table = candidateBox.querySelector('table');
-  
-    // Clear existing table rows
-    table.innerHTML = `
-      <tr>
-        <th>State</th>
-        <th>Visits</th>
-      </tr>
+// Function to display the full list of states for a candidate within the selected date range
+function displayFullStatesList(candidateBox, stateVisits, startDate, endDate) {
+  const table = candidateBox.querySelector('table');
+
+  // Clear existing table rows
+  table.innerHTML = `
+    <tr>
+      <th>State</th>
+      <th>Visits</th>
+    </tr>
+  `;
+
+  // Add rows for all states within the selected date range
+  for (let [state, visits] of stateVisits) {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${state}</td>
+      <td>${visits}</td>
     `;
-  
-    // Add rows for all states
-    for (let [state, visits] of stateVisits) {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${state}</td>
-        <td>${visits}</td>
-      `;
-      table.appendChild(row);
-    }
+    table.appendChild(row);
   }
+}
   
 
 /// EVENT LISTENERS
 
 // Event listener for the "View Top States" button
 document.getElementById('viewTopStatesBtn').addEventListener('click', function() {
-    const topStates = calculateTopStates(csvData);
-    displayTopStates(topStates);
-  });
+  const startDate = new Date(dateRangeStart.value);
+  const endDate = new Date(dateRangeEnd.value);
+  const topStates = calculateTopStates(csvData, startDate, endDate);
+  displayTopStates(topStates);
+});
   
   // Event listener for the "View Events" button
   document.getElementById('viewEventsBtn').addEventListener('click', function() {
@@ -205,7 +247,14 @@ document.getElementById('viewTopStatesBtn').addEventListener('click', function()
 
 // Fetch the CSV data, generate the table, and generate the candidate filter
 fetchCsvData(csvUrl, function(data) {
-    generateTable(data);
-    generateCandidateFilter(data);
-    csvData = data; // Assign the data to the csvData variable
-  });
+  csvData = data; // Assign the data to the global csvData variable
+  generateTable(data);
+  generateCandidateFilter(data);
+
+  // Set initial values for the date range inputs and apply filter
+  const initialStartDate = new Date('2024-01-01');
+  const initialEndDate = new Date('2024-11-05');
+  dateRangeStart.value = initialStartDate.toISOString().split('T')[0];
+  dateRangeEnd.value = initialEndDate.toISOString().split('T')[0];
+  filterTableByDateRange(initialStartDate, initialEndDate);
+});
