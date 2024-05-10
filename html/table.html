@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Candidate Tracker v0.1</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+  </head>
+  <body>
+    <h1>Candidate tracker</h1>
+    <div>
+      <label for="candidateFilter">Filter by Candidate:</label>
+      <select id="candidateFilter">
+        <option value="">All</option>
+      </select>
+    </div>
+    <div id="table-container"></div>
+  
+
+  <script>
+    
+    // URL of the CSV file
+    const csvUrl = 'https://raw.githubusercontent.com/corintxt/papiris/main/testout.csv';
+
+    // Function to fetch and parse the CSV data
+    function fetchCsvData(url, callback) {
+      Papa.parse(url, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          callback(results.data);
+        }
+      });
+    }
+
+    // Function to generate the HTML table from the CSV data
+    function generateTable(data) {
+      let table = '<table>';
+      
+      // Generate table header
+      table += '<tr>';
+      for (let column in data[0]) {
+        table += `<th>${column}</th>`;
+      }
+      table += '</tr>';
+
+      // Generate table rows
+      for (let row of data) {
+        table += '<tr>';
+        for (let column in row) {
+          table += `<td>${row[column]}</td>`;
+        }
+        table += '</tr>';
+      }
+
+      table += '</table>';
+
+      // Insert the table into the container element
+      document.getElementById('table-container').innerHTML = table;
+    }
+
+      // Function to generate the candidate filter dropdown
+      function generateCandidateFilter(data) {
+        const candidates = new Set();
+        for (let row of data) {
+          if (row.candidate) {
+            candidates.add(row.candidate);
+          }
+        }
+
+        const filterSelect = document.getElementById('candidateFilter');
+        for (let candidate of candidates) {
+          const option = document.createElement('option');
+          option.value = candidate;
+          option.text = candidate;
+          filterSelect.appendChild(option);
+        }
+
+        filterSelect.addEventListener('change', function() {
+          const selectedCandidate = this.value;
+          const filteredData = selectedCandidate ? data.filter(row => row.candidate === selectedCandidate) : data;
+          generateTable(filteredData);
+        });
+      }
+
+    // Fetch the CSV data, generate the table, and generate the candidate filter
+    fetchCsvData(csvUrl, function(data) {
+      generateTable(data);
+      generateCandidateFilter(data);
+    });
+  </script>
+</body>
+</html>
