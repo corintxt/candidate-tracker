@@ -99,7 +99,16 @@ function generateCandidateFilter(data) {
 // Function to update the result count display
 function updateResultCount(count) {
   const resultCountElement = document.getElementById('resultCount');
-  resultCountElement.textContent = `Showing ${count} events`;
+  const viewTopStatesBtn = document.getElementById('viewTopStatesBtn');
+
+  if (viewTopStatesBtn.classList.contains('active')) {
+    // If the "View Top States" button is active, hide the result count
+    resultCountElement.style.display = 'none';
+  } else {
+    // Otherwise, show the result count
+    resultCountElement.style.display = 'inline';
+    resultCountElement.textContent = `Showing ${count} events`;
+  }
 }
 
 // Function to filter the table by candidate and date range
@@ -135,15 +144,49 @@ function filterTableByDateRange(startDate, endDate) {
 const dateRangeStart = document.getElementById('dateRangeStart');
 const dateRangeEnd = document.getElementById('dateRangeEnd');
 
-dateRangeStart.addEventListener('change', applyDateFilter);
-dateRangeEnd.addEventListener('change', applyDateFilter);
+dateRangeStart.addEventListener('change', handleDateRangeChange);
+dateRangeEnd.addEventListener('change', handleDateRangeChange);
 
-function applyDateFilter() {
+function handleDateRangeChange() {
+  const startDate = new Date(dateRangeStart.value);
+  const endDate = new Date(dateRangeEnd.value);
+  const selectedCandidate = document.getElementById('candidateFilter').value;
+
+  if (document.getElementById('viewTopStatesBtn').classList.contains('active')) {
+    // If the "View Top States" button is active, update the Top States view
+    const topStates = calculateTopStates(csvData, startDate, endDate);
+    displayTopStates(topStates);
+  } else {
+    // Otherwise, update the table view
+    filterTableByCandidateAndDateRange(selectedCandidate, startDate, endDate);
+  }
+}
+
+// Event listener for the "View Top States" button
+document.getElementById('viewTopStatesBtn').addEventListener('click', function() {
+  this.classList.add('active');
+  document.getElementById('viewEventsBtn').classList.remove('active');
+  
+  const startDate = new Date(dateRangeStart.value);
+  const endDate = new Date(dateRangeEnd.value);
+  const topStates = calculateTopStates(csvData, startDate, endDate);
+  displayTopStates(topStates);
+  
+  // Hide the result count when in the Top States view
+  updateResultCount(0);
+});
+
+// Event listener for the "View Events" button
+document.getElementById('viewEventsBtn').addEventListener('click', function() {
+  this.classList.add('active');
+  document.getElementById('viewTopStatesBtn').classList.remove('active');
+  
   const startDate = new Date(dateRangeStart.value);
   const endDate = new Date(dateRangeEnd.value);
   const selectedCandidate = document.getElementById('candidateFilter').value;
   filterTableByCandidateAndDateRange(selectedCandidate, startDate, endDate);
-}
+});
+
 
 // Function to get the current date or '2024-11-05', whichever is earlier
 function getCurrentOrMaxDate() {
@@ -242,9 +285,11 @@ function displayFullStatesList(candidateBox, candidate, startDate, endDate) {
     }
   }
 
+  // Convert stateVisits object to an array and sort in descending order
+  const sortedStateVisits = Object.entries(stateVisits).sort((a, b) => b[1] - a[1]);
+
   // Add rows for all states within the selected date range, excluding "United States" and "Unknown"
-  for (let state in stateVisits) {
-    const visits = stateVisits[state];
+  for (let [state, visits] of sortedStateVisits) {
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${state}</td>
