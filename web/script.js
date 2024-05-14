@@ -199,52 +199,9 @@ function displayTable() {
     generateTable(csvData);
   }
 
-// Function to display the top states for each candidate
-function displayTopStates(topStates) {
-    let html = '';
-  
-    for (let candidate in topStates) {
-      html += `<div class="candidate-box" data-candidate="${candidate}">
-                 <h2>${candidate}</h2>
-                 <table class="top-states-table">
-                   <tr>
-                     <th>State</th>
-                     <th>Visits</th>
-                   </tr>`;
-  
-      for (let [state, visits] of topStates[candidate].slice(0, 5)) {
-        html += `<tr>
-                   <td>${state}</td>
-                   <td>${visits}</td>
-                 </tr>`;
-      }
-  
-      html += `</table>
-               <button class="full-list-btn">Full List</button>
-               </div>`;
-    }
-  
-    document.getElementById('table-container').innerHTML = html;
-  
-// Event listeners for the "full list" buttons
-const fullListButtons = document.getElementsByClassName('full-list-btn');
-console.log('Full List Buttons:', fullListButtons);
 
-for (let button of fullListButtons) {
-  button.addEventListener('click', function() {
-    const candidateBox = this.closest('.candidate-box');
-    const candidate = candidateBox.getAttribute('data-candidate');
-    console.log('Clicked Candidate:', candidate);
-    const startDate = new Date(dateRangeStart.value);
-    const endDate = new Date(dateRangeEnd.value);
-    const stateVisits = calculateTopStates(csvData, startDate, endDate)[candidate];
-    displayFullStatesList(candidateBox, stateVisits, startDate, endDate);
-  });
-}
-  }
-  
 // Function to display the full list of states for a candidate within the selected date range
-function displayFullStatesList(candidateBox, stateVisits, startDate, endDate) {
+function displayFullStatesList(candidateBox, candidate, startDate, endDate) {
   const table = candidateBox.querySelector('table');
 
   // Clear existing table rows
@@ -255,8 +212,25 @@ function displayFullStatesList(candidateBox, stateVisits, startDate, endDate) {
     </tr>
   `;
 
-  // Add rows for all states within the selected date range
-  for (let [state, visits] of stateVisits) {
+  const filteredData = csvData.filter(row => {
+    const rowDate = new Date(row.date);
+    return row.candidate === candidate && rowDate >= startDate && rowDate <= endDate;
+  });
+
+  const stateVisits = {};
+  for (let row of filteredData) {
+    const state = row.state;
+    if (state !== 'United States' && state !== 'Unknown') {
+      if (!stateVisits[state]) {
+        stateVisits[state] = 0;
+      }
+      stateVisits[state]++;
+    }
+  }
+
+  // Add rows for all states within the selected date range, excluding "United States" and "Unknown"
+  for (let state in stateVisits) {
+    const visits = stateVisits[state];
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${state}</td>
@@ -265,7 +239,56 @@ function displayFullStatesList(candidateBox, stateVisits, startDate, endDate) {
     table.appendChild(row);
   }
 }
-  
+
+// Function to display the top states for each candidate
+function displayTopStates(topStates) {
+  let html = '';
+
+  for (let candidate in topStates) {
+    html += `<div class="candidate-box" data-candidate="${candidate}">
+               <h2>${candidate}</h2>
+               <table class="top-states-table">
+                 <tr>
+                   <th>State</th>
+                   <th>Visits</th>
+                 </tr>`;
+
+    let displayedStates = 0;
+    for (let [state, visits] of topStates[candidate]) {
+      if (state !== 'United States' && state !== 'Unknown') {
+        html += `<tr>
+                   <td>${state}</td>
+                   <td>${visits}</td>
+                 </tr>`;
+        displayedStates++;
+      }
+      if (displayedStates === 5) {
+        break;
+      }
+    }
+
+    html += `</table>
+             <button class="full-list-btn">Full List</button>
+             </div>`;
+  }
+
+  document.getElementById('table-container').innerHTML = html;
+
+  // Event listeners for the "full list" buttons
+  const fullListButtons = document.getElementsByClassName('full-list-btn');
+  console.log('Full List Buttons:', fullListButtons);
+
+  for (let button of fullListButtons) {
+    button.addEventListener('click', function() {
+      const candidateBox = this.closest('.candidate-box');
+      const candidate = candidateBox.getAttribute('data-candidate');
+      console.log('Clicked Candidate:', candidate);
+      const startDate = new Date(dateRangeStart.value);
+      const endDate = new Date(dateRangeEnd.value);
+      displayFullStatesList(candidateBox, candidate, startDate, endDate);
+    });
+  }
+}
 
 /// BUTTON EVENT LISTENERS
 // Event listener for the "View Top States" button
