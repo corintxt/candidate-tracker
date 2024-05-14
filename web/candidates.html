@@ -6,7 +6,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Teachers:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-  <h1>Presidential candidate tracker</h1>
+  <div class="header-container">
+    <h1>Presidential candidate tracker</h1>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Agence_France-Presse_Logo.svg/300px-Agence_France-Presse_Logo.svg.png" alt="AFP Logo" class="logo">
+  </div>
   <div class="filter-container">
     <div>
       <label for="candidateFilter">Filter by Candidate:</label>
@@ -18,7 +21,7 @@
       <label for="dateRangeStart">Date Range:</label>
       <input type="date" id="dateRangeStart" min="2024-01-01" max="2024-11-05" value="2024-01-01">
       <span>-</span>
-      <input type="date" id="dateRangeEnd" min="2024-01-01" max="2024-11-05" value="2024-11-05">
+      <input type="date" id="dateRangeEnd" min="2024-01-01">
     </div>
     <div class="button-container">
       <button id="viewEventsBtn">View Events</button>

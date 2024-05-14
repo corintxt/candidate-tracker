@@ -86,7 +86,7 @@ function generateCandidateFilter(data) {
   });
 }
 
-// FILTER BY DATE
+// SET DATE DEFAULTS / FILTER BY DATE
 // Function to filter the table based on the selected date range
 function filterTableByDateRange(startDate, endDate) {
   if (csvData) {
@@ -97,7 +97,6 @@ function filterTableByDateRange(startDate, endDate) {
     generateTable(filteredData);
   }
 }
-
 
 // Event listeners for the date range inputs
 const dateRangeStart = document.getElementById('dateRangeStart');
@@ -111,12 +110,20 @@ function applyDateFilter() {
   const endDate = new Date(dateRangeEnd.value);
   filterTableByDateRange(startDate, endDate);
 }
+// Function to get the current date or '2024-11-05', whichever is earlier
+function getCurrentOrMaxDate() {
+  const today = new Date();
+  const maxDate = new Date('2024-11-05');
+  return today < maxDate ? today : maxDate;
+}
 
 // Set initial values for the date range inputs
 const initialStartDate = new Date('2024-01-01');
-const initialEndDate = new Date('2024-11-05');
+const initialEndDate = getCurrentOrMaxDate();
+
 dateRangeStart.value = initialStartDate.toISOString().split('T')[0];
 dateRangeEnd.value = initialEndDate.toISOString().split('T')[0];
+dateRangeEnd.max = '2024-11-05';
 filterTableByDateRange(initialStartDate, initialEndDate);
 
 
@@ -244,17 +251,11 @@ document.getElementById('viewTopStatesBtn').addEventListener('click', function()
     displayTable();
   });
 
+/// FETCH AND GENERATE FUNCTION
 
 // Fetch the CSV data, generate the table, and generate the candidate filter
 fetchCsvData(csvUrl, function(data) {
   csvData = data; // Assign the data to the global csvData variable
   generateTable(data);
   generateCandidateFilter(data);
-
-  // Set initial values for the date range inputs and apply filter
-  const initialStartDate = new Date('2024-01-01');
-  const initialEndDate = new Date('2024-11-05');
-  dateRangeStart.value = initialStartDate.toISOString().split('T')[0];
-  dateRangeEnd.value = initialEndDate.toISOString().split('T')[0];
-  filterTableByDateRange(initialStartDate, initialEndDate);
-});
+})

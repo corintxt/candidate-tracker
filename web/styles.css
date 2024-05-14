@@ -12,6 +12,17 @@ h1 {
   margin-bottom: 20px;
 }
 
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+}
+
 .filter-container {
   display: flex;
   justify-content: space-between;
