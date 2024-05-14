@@ -91,6 +91,12 @@ function generateCandidateFilter(data) {
   });
 }
 
+// Function to update the result count display
+function updateResultCount(count) {
+  const resultCountElement = document.getElementById('resultCount');
+  resultCountElement.textContent = `Showing ${count} events`;
+}
+
 // Function to filter the table by candidate and date range
 function filterTableByCandidateAndDateRange(selectedCandidate, startDate, endDate) {
   let filteredData = csvData;
@@ -105,6 +111,7 @@ function filterTableByCandidateAndDateRange(selectedCandidate, startDate, endDat
   });
 
   generateTable(filteredData);
+  updateResultCount(filteredData.length);
 }
 
 // SET DATE DEFAULTS / FILTER BY DATE
@@ -140,22 +147,24 @@ function getCurrentOrMaxDate() {
   return today < maxDate ? today : maxDate;
 }
 
-// Set initial values for the date range inputs
-const initialStartDate = new Date('2024-01-01');
-const initialEndDate = getCurrentOrMaxDate();
-
-dateRangeStart.value = initialStartDate.toISOString().split('T')[0];
-dateRangeEnd.value = initialEndDate.toISOString().split('T')[0];
-dateRangeEnd.max = '2024-11-05';
-filterTableByDateRange(initialStartDate, initialEndDate);
-
-
 /// FETCH AND GENERATE FUNCTION
 // Fetch the CSV data, generate the table, and generate the candidate filter
 fetchCsvData(csvUrl, function(data) {
   csvData = data; // Assign the data to the global csvData variable
   generateTable(data);
   generateCandidateFilter(data);
+
+    // Set initial values for the date range inputs
+  const initialStartDate = new Date('2024-01-01');
+  const initialEndDate = getCurrentOrMaxDate();
+
+  dateRangeStart.value = initialStartDate.toISOString().split('T')[0];
+  dateRangeEnd.value = initialEndDate.toISOString().split('T')[0];
+  dateRangeEnd.max = '2024-11-05';
+  filterTableByDateRange(initialStartDate, initialEndDate);
+
+  // Update the result count for the initial table
+  updateResultCount(data.length);
 })
 
 //// TOP STATES VIEW /////
