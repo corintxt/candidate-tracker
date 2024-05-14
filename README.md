@@ -4,7 +4,6 @@ Version 1.0
 
 ### Todo
 * Create a 'download CSV' function with current view
-* Remove index numbers
 * Add date filtering to top states -> without going back to table view
 
 * Make authorisation screen ?
@@ -15,3 +14,4 @@ Version 1.0
 * Add AFP logo and favicon
 * Date range should initiate with current date as latest date
 * Filter by candidate doesn't currently work with date range
+* Remove index numbers

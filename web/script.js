@@ -26,32 +26,37 @@ function generateTable(data) {
   // Generate table header
   table += '<tr>';
   for (let column in data[0]) {
-    table += `<th>${column}</th>`;
+    if (column !== '') {
+      table += `<th>${column}</th>`;
+    }
   }
   table += '</tr>';
 
   // Generate table rows
-  for (let row of data) {
+  for (let i = 1; i < data.length; i++) {
+    let row = data[i];
     table += '<tr>';
     for (let column in row) {
-      if (column === 'status') {
-        let statusEmoji = '';
-        switch (row[column]) {
-          case 'VALID':
-            statusEmoji = '&#9989;'; // Green check emoji
-            break;
-          case 'NOT_USABLE':
-            statusEmoji = '&#10060;'; // Red cross emoji
-            break;
-          case 'CANDIDATE':
-            statusEmoji = '&#128993;'; // Yellow circle emoji 
-            break;
-          default:
-            statusEmoji = row[column];
+      if (column !== '') {
+        if (column === 'status') {
+          let statusEmoji = '';
+          switch (row[column]) {
+            case 'VALID':
+              statusEmoji = '&#9989;'; // Green check emoji
+              break;
+            case 'NOT_USABLE':
+              statusEmoji = '&#10060;'; // Red cross emoji
+              break;
+            case 'CANDIDATE':
+              statusEmoji = '&#128993;'; // Yellow circle emoji
+              break;
+            default:
+              statusEmoji = row[column];
+          }
+          table += `<td>${statusEmoji}</td>`;
+        } else {
+          table += `<td>${row[column]}</td>`;
         }
-        table += `<td>${statusEmoji}</td>`;
-      } else {
-        table += `<td>${row[column]}</td>`;
       }
     }
     table += '</tr>';
