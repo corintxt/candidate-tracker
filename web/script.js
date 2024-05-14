@@ -17,6 +17,7 @@ function fetchCsvData(url, callback) {
   });
 }
 
+//// TABLE VIEW ////
 /// GENERATE EVENT OVERVIEW TABLE
 // Function to generate the HTML table from the CSV data
 function generateTable(data) {
@@ -62,6 +63,7 @@ function generateTable(data) {
   document.getElementById('table-container').innerHTML = table;
 }
 
+/// CANDIDATE FILTER
 // Function to generate the candidate filter dropdown
 function generateCandidateFilter(data) {
   const candidates = new Set();
@@ -72,6 +74,8 @@ function generateCandidateFilter(data) {
   }
 
   const filterSelect = document.getElementById('candidateFilter');
+  filterSelect.innerHTML = '<option value="">All</option>';
+
   for (let candidate of candidates) {
     const option = document.createElement('option');
     option.value = candidate;
@@ -81,9 +85,26 @@ function generateCandidateFilter(data) {
 
   filterSelect.addEventListener('change', function() {
     const selectedCandidate = this.value;
-    const filteredData = selectedCandidate ? data.filter(row => row.candidate === selectedCandidate) : data;
-    generateTable(filteredData);
+    const startDate = new Date(dateRangeStart.value);
+    const endDate = new Date(dateRangeEnd.value);
+    filterTableByCandidateAndDateRange(selectedCandidate, startDate, endDate);
   });
+}
+
+// Function to filter the table by candidate and date range
+function filterTableByCandidateAndDateRange(selectedCandidate, startDate, endDate) {
+  let filteredData = csvData;
+
+  if (selectedCandidate) {
+    filteredData = filteredData.filter(row => row.candidate === selectedCandidate);
+  }
+
+  filteredData = filteredData.filter(row => {
+    const rowDate = new Date(row.date);
+    return rowDate >= startDate && rowDate <= endDate;
+  });
+
+  generateTable(filteredData);
 }
 
 // SET DATE DEFAULTS / FILTER BY DATE
@@ -108,8 +129,10 @@ dateRangeEnd.addEventListener('change', applyDateFilter);
 function applyDateFilter() {
   const startDate = new Date(dateRangeStart.value);
   const endDate = new Date(dateRangeEnd.value);
-  filterTableByDateRange(startDate, endDate);
+  const selectedCandidate = document.getElementById('candidateFilter').value;
+  filterTableByCandidateAndDateRange(selectedCandidate, startDate, endDate);
 }
+
 // Function to get the current date or '2024-11-05', whichever is earlier
 function getCurrentOrMaxDate() {
   const today = new Date();
@@ -127,6 +150,15 @@ dateRangeEnd.max = '2024-11-05';
 filterTableByDateRange(initialStartDate, initialEndDate);
 
 
+/// FETCH AND GENERATE FUNCTION
+// Fetch the CSV data, generate the table, and generate the candidate filter
+fetchCsvData(csvUrl, function(data) {
+  csvData = data; // Assign the data to the global csvData variable
+  generateTable(data);
+  generateCandidateFilter(data);
+})
+
+//// TOP STATES VIEW /////
 /// CALCULATE TOP STATES
 // Function to calculate the top states visited by each candidate within the selected date range
 function calculateTopStates(data, startDate, endDate) {
@@ -162,7 +194,6 @@ function calculateTopStates(data, startDate, endDate) {
 }
 
 /// DISPLAY FUNCTIONS
-
 // Function to display the original HTML table
 function displayTable() {
     generateTable(csvData);
@@ -236,8 +267,7 @@ function displayFullStatesList(candidateBox, stateVisits, startDate, endDate) {
 }
   
 
-/// EVENT LISTENERS
-
+/// BUTTON EVENT LISTENERS
 // Event listener for the "View Top States" button
 document.getElementById('viewTopStatesBtn').addEventListener('click', function() {
   const startDate = new Date(dateRangeStart.value);
@@ -250,12 +280,3 @@ document.getElementById('viewTopStatesBtn').addEventListener('click', function()
   document.getElementById('viewEventsBtn').addEventListener('click', function() {
     displayTable();
   });
-
-/// FETCH AND GENERATE FUNCTION
-
-// Fetch the CSV data, generate the table, and generate the candidate filter
-fetchCsvData(csvUrl, function(data) {
-  csvData = data; // Assign the data to the global csvData variable
-  generateTable(data);
-  generateCandidateFilter(data);
-})
