@@ -3,6 +3,8 @@
 Version 1.0
 
 ### Todo
+* Review code
+* Add AFP logo to local project files
 * Create a 'download CSV' function with current view
 * Make authorisation screen ?
 * Some kind of mapping/charts/visual
