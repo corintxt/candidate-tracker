@@ -54,18 +54,21 @@ function generateTable(data) {
               statusEmoji = row[column];
           }
           table += `<td>${statusEmoji}</td>`;
+          // Make event_id a hyperlink with value iris360 URL + event_hash
         } else if (column === 'event_id') {
           const eventHash = row['event_hash'];
           i360 = 'http://iris-360.afp.com/event/'
           table += `<td><a href="${i360 + eventHash}">${row[column]}</a></td>`;
          } else if (column === 'event_hash') {
           continue;
-        } else {
+        } else if (column !== 'event_id' && column !== 'lat' && column !== 'long') {
           table += `<td>${row[column]}</td>`;
         }
-
       }
     }
+    const lat = row['lat'];
+    const long = row['lon'];
+    table += `<td><a href="#" class="map-link" data-lat="${lat}" data-long="${long}">map</a></td>`;
     table += '</tr>';
   }
 
@@ -73,6 +76,46 @@ function generateTable(data) {
 
   // Insert the table into the container element
   document.getElementById('table-container').innerHTML = table;
+
+  // Add event listeners to the map links
+  const mapLinks = document.getElementsByClassName('map-link');
+  for (let link of mapLinks) {
+    link.addEventListener('click', openMapSidebar);
+  }
+}
+
+// Function to open the map sidebar
+function openMapSidebar(event) {
+  event.preventDefault();
+  const lat = parseFloat(event.target.getAttribute('data-lat'));
+  const long = parseFloat(event.target.getAttribute('data-long'));
+
+  const mapSidebar = document.createElement('div');
+  mapSidebar.id = 'map-sidebar';
+  mapSidebar.classList.add('open');
+  mapSidebar.innerHTML = `
+    <div id="map"></div>
+    <button id="close-map">Close</button>
+  `;
+  document.body.appendChild(mapSidebar);
+
+  const map = L.map('map').setView([lat, long], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  L.marker([lat, long]).addTo(map);
+
+  const closeButton = document.getElementById('close-map');
+  closeButton.addEventListener('click', closeMapSidebar);
+}
+
+// Function to close the map sidebar
+function closeMapSidebar() {
+  const mapSidebar = document.getElementById('map-sidebar');
+  mapSidebar.classList.remove('open');
+  setTimeout(() => {
+    mapSidebar.remove();
+  }, 300);
 }
 
 /// CANDIDATE FILTER

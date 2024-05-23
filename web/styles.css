@@ -137,3 +137,33 @@ tr:hover {
 .full-list-btn:hover {
   background-color: #218838;
 }
+
+#map-sidebar {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100%;
+  background-color: #fff;
+  transition: right 0.3s ease-in-out;
+  z-index: 9999;
+}
+
+#map-sidebar.open {
+  right: 0;
+}
+
+#map {
+  height: calc(100% - 40px);
+  /* height: 200px; */
+}
+
+#close-map {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #93b07a;
+  border: none;
+  text-align: center;
+  cursor: pointer;
+}
