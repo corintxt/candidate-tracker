@@ -26,7 +26,7 @@ function generateTable(data) {
   // Generate table header
   table += '<tr>';
   for (let column in data[0]) {
-    if (column !== '') {
+    if (column !== (''||'event_hash')) {
       table += `<th>${column}</th>`;
     }
   }
@@ -54,9 +54,16 @@ function generateTable(data) {
               statusEmoji = row[column];
           }
           table += `<td>${statusEmoji}</td>`;
+        } else if (column === 'event_id') {
+          const eventHash = row['event_hash'];
+          i360 = 'http://iris-360.afp.com/event/'
+          table += `<td><a href="${i360 + eventHash}">${row[column]}</a></td>`;
+         } else if (column === 'event_hash') {
+          continue;
         } else {
           table += `<td>${row[column]}</td>`;
         }
+
       }
     }
     table += '</tr>';
