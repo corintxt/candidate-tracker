@@ -26,10 +26,11 @@ function generateTable(data) {
   // Generate table header
   table += '<tr>';
   for (let column in data[0]) {
-    if (column !== (''||'event_hash')) {
+    if (column !== 'event_hash'&& column !== 'lat' && column !== 'lon') {
       table += `<th>${column}</th>`;
     }
   }
+  table += '<th>map</th>'
   table += '</tr>';
 
   // Generate table rows
@@ -61,14 +62,14 @@ function generateTable(data) {
           table += `<td><a href="${i360 + eventHash}">${row[column]}</a></td>`;
          } else if (column === 'event_hash') {
           continue;
-        } else if (column !== 'event_id' && column !== 'lat' && column !== 'long') {
+        } else if (column !== 'event_id' && column !== 'lat' && column !== 'lon') {
           table += `<td>${row[column]}</td>`;
         }
       }
     }
     const lat = row['lat'];
     const long = row['lon'];
-    table += `<td><a href="#" class="map-link" data-lat="${lat}" data-long="${long}">map</a></td>`;
+    table += `<td><a href="#" class="map-link" data-lat="${lat}" data-long="${long}">&#127758</a></td>`;
     table += '</tr>';
   }
 
@@ -99,10 +100,13 @@ function openMapSidebar(event) {
   `;
   document.body.appendChild(mapSidebar);
 
-  const map = L.map('map').setView([lat, long], 13);
+  const map = L.map('map').setView([lat, long], 7);
+
+  // Add tile layer to the map
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
+
   L.marker([lat, long]).addTo(map);
 
   const closeButton = document.getElementById('close-map');
