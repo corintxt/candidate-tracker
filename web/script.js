@@ -298,7 +298,7 @@ function calculateTopStates(data, startDate, endDate) {
   for (let candidate in candidateStates) {
     const stateVisits = candidateStates[candidate];
     const sortedStates = Object.entries(stateVisits).sort((a, b) => b[1] - a[1]);
-    topStates[candidate] = sortedStates.slice(0, 5);
+    topStates[candidate] = sortedStates.slice(0,6);
   }
 
   return topStates;
