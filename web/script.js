@@ -59,7 +59,7 @@ function generateTable(data) {
         } else if (column === 'event_id') {
           const eventHash = row['event_hash'];
           i360 = 'http://iris-360.afp.com/event/'
-          table += `<td><a href="${i360 + eventHash}">${row[column]}</a></td>`;
+          table += `<td><a href="${i360 + eventHash}">${row[column]} target="_blank"</a></td>`;
          } else if (column === 'event_hash') {
           continue;
         } else if (column !== 'event_id' && column !== 'lat' && column !== 'lon') {
