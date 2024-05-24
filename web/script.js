@@ -100,7 +100,12 @@ function generateMap() {
 
   for (let i = 1; i < tableRows.length; i++) {
     const row = tableRows[i];
+    const eventId = row.querySelector('td:nth-child(1)').textContent;
     const candidate = row.querySelector('td:nth-child(2)').textContent;
+    const eventTitle = row.querySelector('td:nth-child(3)').textContent;
+    const city = row.querySelector('td:nth-child(4)').textContent;
+    const state = row.querySelector('td:nth-child(5)').textContent;
+    const date = row.querySelector('td:nth-child(6)').textContent;
     const mapLink = row.querySelector('.map-link');
 
     if (mapLink) {
@@ -118,12 +123,28 @@ function generateMap() {
           markerColor = 'gray';
         }
 
-        L.circleMarker([lat, long], {
+        const marker = L.circleMarker([lat, long], {
           color: markerColor,
           fillColor: markerColor,
           fillOpacity: 1,
           radius: 5
         }).addTo(map);
+
+        const popupContent = `
+          <strong>Event ID:</strong> ${eventId}<br>
+          <strong>Event Title:</strong> ${eventTitle}<br>
+          <strong>City:</strong> ${city}<br>
+          <strong>State:</strong> ${state}<br>
+          <strong>Date:</strong> ${date}
+        `;
+
+        marker.bindPopup(popupContent);
+        // marker.on('mouseover', function (e) {
+        //     this.openPopup();
+        // });
+        // marker.on('mouseout', function (e) {
+        //     this.closePopup();
+        // });
       }
     }
   }
