@@ -59,7 +59,7 @@ function generateTable(data) {
         } else if (column === 'event_id') {
           const eventHash = row['event_hash'];
           i360 = 'http://iris-360.afp.com/event/'
-          table += `<td><a href="${i360 + eventHash}">${row[column]} target="_blank"</a></td>`;
+          table += `<td><a href="${i360 + eventHash}"  >${row[column]}</a></td>`;
          } else if (column === 'event_hash') {
           continue;
         } else if (column !== 'event_id' && column !== 'lat' && column !== 'lon') {
@@ -84,6 +84,52 @@ function generateTable(data) {
     link.addEventListener('click', openMapSidebar);
   }
 }
+
+// Function to generate the big map with markers
+function generateMap() {
+  const mapContainer = document.getElementById('map-container');
+  mapContainer.style.display = 'flex';
+
+  const map = L.map('big-map').setView([39.8283, -98.5795], 4);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  const tableRows = document.querySelectorAll('#table-container table tr');
+
+  for (let i = 1; i < tableRows.length; i++) {
+    const row = tableRows[i];
+    const candidate = row.querySelector('td:nth-child(2)').textContent;
+    const mapLink = row.querySelector('.map-link');
+
+    if (mapLink) {
+      const lat = parseFloat(mapLink.getAttribute('data-lat'));
+      const long = parseFloat(mapLink.getAttribute('data-long'));
+
+      if (!isNaN(lat) && !isNaN(long)) {
+        let markerColor;
+
+        if (candidate === 'TRUMP') {
+          markerColor = 'red';
+        } else if (candidate === 'BIDEN') {
+          markerColor = 'blue';
+        } else {
+          markerColor = 'gray';
+        }
+
+        L.circleMarker([lat, long], {
+          color: markerColor,
+          fillColor: markerColor,
+          fillOpacity: 1,
+          radius: 5
+        }).addTo(map);
+      }
+    }
+  }
+}
+
+
 
 // Function to open the map sidebar
 function openMapSidebar(event) {
@@ -416,3 +462,19 @@ document.getElementById('viewTopStatesBtn').addEventListener('click', function()
   document.getElementById('viewEventsBtn').addEventListener('click', function() {
     displayTable();
   });
+
+// Event listener for the "View Map" button
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('viewMapBtn').addEventListener('click', function() {
+    generateMap();
+  });
+});
+
+// Event listener to close the map when clicking outside the map
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('map-container').addEventListener('click', function(event) {
+    if (event.target === this) {
+      this.style.display = 'none';
+    }
+  });
+});

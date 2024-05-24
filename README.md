@@ -11,9 +11,10 @@ Event ID links to Iris360 event
 Unnecessary columns dropped
 
 ### Todo
-* Review code
+* Button for "Map All" that plots all pins from current view
 * (Create a 'download CSV' function with current view)
 * Find out why some events (ones with yellow circle) have the state listed as United States
+* Review code / reorganize if needed
 
 #### DONE
 * Add AFP logo and favicon
