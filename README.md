@@ -1,9 +1,10 @@
 # Presidential candidate tracker
 
-## Version 1.3
+## Version 1.4
+### New:
+View Map button loads markers with event details
 
-## New:
-
+### 1.3
 Event ID links to Iris360 event
 
 'Map' button opens a Leaflet map
