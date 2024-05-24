@@ -86,11 +86,17 @@ function generateTable(data) {
 }
 
 // Function to generate the big map with markers
+let map;
+
 function generateMap() {
   const mapContainer = document.getElementById('map-container');
   mapContainer.style.display = 'flex';
 
-  const map = L.map('big-map').setView([39.8283, -98.5795], 4);
+  if (map) {
+    map.remove(); // Remove the existing map instance if it exists
+  }
+
+  map = L.map('big-map').setView([39.8283, -98.5795], 4);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -150,6 +156,14 @@ function generateMap() {
   }
 }
 
+// // Function to clear the map
+// function clearMap() {
+//   const mapContainer = document.getElementById('map-container');
+//   mapContainer.style.display = 'none';
+
+//   const map = document.getElementById('big-map');
+//   map.innerHTML = '';
+// }
 
 
 // Function to open the map sidebar
@@ -214,6 +228,7 @@ function generateCandidateFilter(data) {
     const startDate = new Date(dateRangeStart.value);
     const endDate = new Date(dateRangeEnd.value);
     filterTableByCandidateAndDateRange(selectedCandidate, startDate, endDate);
+    // clearMap();
   });
 }
 
@@ -280,6 +295,7 @@ function handleDateRangeChange() {
   } else {
     // Otherwise, update the table view
     filterTableByCandidateAndDateRange(selectedCandidate, startDate, endDate);
+    // clearMap();
   }
 }
 
